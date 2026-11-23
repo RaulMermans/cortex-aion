@@ -1,0 +1,25 @@
+{
+	"name": "ds_nyc311_source_csv",
+	"properties": {
+		"description": "Historical NYC 311 service requests extracted from the public Socrata API in CSV format.",
+		"linkedServiceName": {
+			"referenceName": "ls_http_nyc311",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": "resource/erm2-nwe9.csv?$select=unique_key,created_date,closed_date,agency,complaint_type,descriptor,status,borough,due_date&$where=created_date%20%3E%3D%20%272024-01-01T00%3A00%3A00%27%20AND%20created_date%20%3C%20%272024-02-01T00%3A00%3A00%27&$order=created_date,unique_key&$limit=5000"
+			},
+			"columnDelimiter": ",",
+			"rowDelimiter": "\n",
+			"encodingName": "UTF-8",
+			"escapeChar": "\"",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
