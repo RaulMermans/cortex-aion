@@ -1,0 +1,10 @@
+{
+	"name": "ls_adls_cortex_aion",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://stcortexaiondev.dfs.core.windows.net/"
+		}
+	}
+}
