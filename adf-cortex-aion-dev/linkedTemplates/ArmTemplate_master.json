@@ -11,6 +11,10 @@
 			"type": "string",
 			"defaultValue": "https://stcortexaiondev.dfs.core.windows.net/"
 		},
+		"ls_http_nyc311_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://data.cityofnewyork.us/"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -40,6 +44,9 @@
 					},
 					"ls_adls_cortex_aion_properties_typeProperties_url": {
 						"value": "[parameters('ls_adls_cortex_aion_properties_typeProperties_url')]"
+					},
+					"ls_http_nyc311_properties_typeProperties_url": {
+						"value": "[parameters('ls_http_nyc311_properties_typeProperties_url')]"
 					}
 				}
 			},

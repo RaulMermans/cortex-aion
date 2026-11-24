@@ -7,6 +7,9 @@
 		},
 		"ls_adls_cortex_aion_properties_typeProperties_url": {
 			"value": "https://stcortexaiondev.dfs.core.windows.net/"
+		},
+		"ls_http_nyc311_properties_typeProperties_url": {
+			"value": "https://data.cityofnewyork.us/"
 		}
 	}
 }

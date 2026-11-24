@@ -10,6 +10,10 @@
 		"ls_adls_cortex_aion_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://stcortexaiondev.dfs.core.windows.net/"
+		},
+		"ls_http_nyc311_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://data.cityofnewyork.us/"
 		}
 	},
 	"variables": {
@@ -28,6 +32,160 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_http_nyc311')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Public NYC 311 operational data source via Socrata API.",
+				"annotations": [],
+				"type": "HttpServer",
+				"typeProperties": {
+					"url": "[parameters('ls_http_nyc311_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_nyc311_source_csv')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Historical NYC 311 service requests extracted from the public Socrata API in CSV format.",
+				"linkedServiceName": {
+					"referenceName": "ls_http_nyc311",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "HttpServerLocation",
+						"relativeUrl": "resource/erm2-nwe9.csv?$select=unique_key,created_date,closed_date,agency,complaint_type,descriptor,status,borough,due_date&$where=created_date%20%3E%3D%20%272024-01-01T00%3A00%3A00%27%20AND%20created_date%20%3C%20%272024-02-01T00%3A00%3A00%27&$order=created_date,unique_key&$limit=5000"
+					},
+					"columnDelimiter": ",",
+					"rowDelimiter": "\n",
+					"encodingName": "UTF-8",
+					"escapeChar": "\"",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_http_nyc311')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_nyc311_bronze_csv')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Raw NYC 311 service request records stored in the Bronze layer of CORTEX AION.",
+				"linkedServiceName": {
+					"referenceName": "ls_adls_cortex_aion",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "service_requests_2024_01_sample.csv",
+						"folderPath": "nyc311",
+						"fileSystem": "bronze"
+					},
+					"columnDelimiter": ",",
+					"rowDelimiter": "\n",
+					"escapeChar": "\"",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_adls_cortex_aion')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_nyc311_ingestion')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "copy_nyc311_to_bronze",
+						"description": "Ingests public NYC 311 service request records into the Bronze layer of CORTEX AION for downstream data validation and transformation.",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "HttpReadSettings",
+									"requestMethod": "GET"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_nyc311_source_csv",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_nyc311_bronze_csv",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_nyc311_source_csv')]",
+				"[concat(variables('factoryId'), '/datasets/ds_nyc311_bronze_csv')]"
+			]
 		}
 	]
 }
