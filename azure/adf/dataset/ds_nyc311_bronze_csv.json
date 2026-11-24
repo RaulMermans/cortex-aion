@@ -1,0 +1,26 @@
+{
+	"name": "ds_nyc311_bronze_csv",
+	"properties": {
+		"description": "Raw NYC 311 service request records stored in the Bronze layer of CORTEX AION.",
+		"linkedServiceName": {
+			"referenceName": "ls_adls_cortex_aion",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "service_requests_2024_01_sample.csv",
+				"folderPath": "nyc311",
+				"fileSystem": "bronze"
+			},
+			"columnDelimiter": ",",
+			"rowDelimiter": "\n",
+			"escapeChar": "\"",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
