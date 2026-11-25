@@ -1,0 +1,20 @@
+{
+	"name": "ds_nyc311_silver_parquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls_cortex_aion",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "nyc311",
+				"fileSystem": "silver"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}

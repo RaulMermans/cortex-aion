@@ -16,7 +16,20 @@
 			],
 			"sinks": [
 				{
-					"name": "sink1"
+					"dataset": {
+						"referenceName": "ds_nyc311_silver_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "sinkSilver",
+					"description": "Store validated NYC 311 records in the Silver layer."
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_nyc311_quarantine_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "sinkQuarantine",
+					"description": "Store flagged records with their data quality reasons for further investigation."
 				}
 			],
 			"transformations": [
@@ -56,8 +69,20 @@
 				"     disjoint: false) ~> routeByQuality@(validRecords, quarantinedRecords)",
 				"routeByQuality@validRecords sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1"
+				"     skipDuplicateMapOutputs: true) ~> sinkSilver",
+				"routeByQuality@quarantinedRecords sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sinkQuarantine"
 			]
 		}
 	}
