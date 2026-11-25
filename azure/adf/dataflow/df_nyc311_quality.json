@@ -1,0 +1,26 @@
+{
+	"name": "df_nyc311_quality",
+	"properties": {
+		"description": "Validates and transforms NYC 311 operational records into trusted data for downstream consumption.",
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_nyc311_bronze_csv",
+						"type": "DatasetReference"
+					},
+					"name": "srcBronze",
+					"description": "Add source datasetRead raw NYC 311 service requests from the Bronze layer."
+				}
+			],
+			"sinks": [],
+			"transformations": [],
+			"scriptLines": [
+				"source(allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> srcBronze"
+			]
+		}
+	}
+}
