@@ -14,7 +14,11 @@
 					"description": "Add source datasetRead raw NYC 311 service requests from the Bronze layer."
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "normalizeDates",
@@ -23,6 +27,10 @@
 				{
 					"name": "evaluateQuality",
 					"description": "Evaluate business data quality rules and classify invalid records."
+				},
+				{
+					"name": "routeByQuality",
+					"description": "Route validated records to Silver and flagged records to Quarantine."
 				}
 			],
 			"scriptLines": [
@@ -43,7 +51,13 @@
 				"srcBronze derive(created_ts = toTimestamp(created_date, 'yyyy-MM-dd\\'T\\'HH:mm:ss.SSS', 'America/New_York'),",
 				"          closed_ts = toTimestamp(closed_date, 'yyyy-MM-dd\\'T\\'HH:mm:ss.SSS', 'America/New_York'),",
 				"          due_ts = toTimestamp(due_date, 'yyyy-MM-dd\\'T\\'HH:mm:ss.SSS', 'America/New_York')) ~> normalizeDates",
-				"normalizeDates derive(quality_reason = case(     trim(coalesce(unique_key, '')) == '', 'MISSING_ID',     isNull(created_ts), 'INVALID_CREATED_DATE',     trim(coalesce(closed_date, '')) != '' && isNull(closed_ts), 'INVALID_CLOSED_DATE',     coalesce(closed_ts < created_ts, false()), 'NEGATIVE_RESOLUTION_TIME',     lower(trim(coalesce(status, ''))) == 'closed' && isNull(closed_ts), 'CLOSED_WITHOUT_DATE',     'VALID' ) ) ~> evaluateQuality"
+				"normalizeDates derive(quality_reason = case(     trim(coalesce(unique_key, '')) == '', 'MISSING_ID',     isNull(created_ts), 'INVALID_CREATED_DATE',     trim(coalesce(closed_date, '')) != '' && isNull(closed_ts), 'INVALID_CLOSED_DATE',     coalesce(closed_ts < created_ts, false()), 'NEGATIVE_RESOLUTION_TIME',     lower(trim(coalesce(status, ''))) == 'closed' && isNull(closed_ts), 'CLOSED_WITHOUT_DATE',     'VALID' ) ) ~> evaluateQuality",
+				"evaluateQuality split(quality_reason == 'VALID',",
+				"     disjoint: false) ~> routeByQuality@(validRecords, quarantinedRecords)",
+				"routeByQuality@validRecords sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
 			]
 		}
 	}
