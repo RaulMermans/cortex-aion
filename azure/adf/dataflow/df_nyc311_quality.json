@@ -15,7 +15,12 @@
 				}
 			],
 			"sinks": [],
-			"transformations": [],
+			"transformations": [
+				{
+					"name": "normalizeDates",
+					"description": "Convert raw date strings into typed timestamps."
+				}
+			],
 			"scriptLines": [
 				"source(output(",
 				"          unique_key as string,",
@@ -30,7 +35,10 @@
 				"     ),",
 				"     allowSchemaDrift: false,",
 				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false) ~> srcBronze"
+				"     ignoreNoFilesFound: false) ~> srcBronze",
+				"srcBronze derive(created_ts = toTimestamp(created_date, 'yyyy-MM-dd\\'T\\'HH:mm:ss.SSS', 'America/New_York'),",
+				"          closed_ts = toTimestamp(closed_date, 'yyyy-MM-dd\\'T\\'HH:mm:ss.SSS', 'America/New_York'),",
+				"          due_ts = toTimestamp(due_date, 'yyyy-MM-dd\\'T\\'HH:mm:ss.SSS', 'America/New_York')) ~> normalizeDates"
 			]
 		}
 	}
