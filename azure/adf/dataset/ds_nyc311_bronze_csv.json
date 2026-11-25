@@ -21,6 +21,43 @@
 			"firstRowAsHeader": true,
 			"quoteChar": "\""
 		},
-		"schema": []
+		"schema": [
+			{
+				"name": "unique_key",
+				"type": "String"
+			},
+			{
+				"name": "created_date",
+				"type": "String"
+			},
+			{
+				"name": "closed_date",
+				"type": "String"
+			},
+			{
+				"name": "agency",
+				"type": "String"
+			},
+			{
+				"name": "complaint_type",
+				"type": "String"
+			},
+			{
+				"name": "descriptor",
+				"type": "String"
+			},
+			{
+				"name": "status",
+				"type": "String"
+			},
+			{
+				"name": "borough",
+				"type": "String"
+			},
+			{
+				"name": "due_date",
+				"type": "String"
+			}
+		]
 	}
 }

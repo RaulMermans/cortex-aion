@@ -17,7 +17,18 @@
 			"sinks": [],
 			"transformations": [],
 			"scriptLines": [
-				"source(allowSchemaDrift: false,",
+				"source(output(",
+				"          unique_key as string,",
+				"          created_date as string,",
+				"          closed_date as string,",
+				"          agency as string,",
+				"          complaint_type as string,",
+				"          descriptor as string,",
+				"          status as string,",
+				"          borough as string,",
+				"          due_date as string",
+				"     ),",
+				"     allowSchemaDrift: false,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> srcBronze"
 			]
