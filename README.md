@@ -6,7 +6,37 @@ An Azure-native data engineering project that turns public operational records i
 
 > **Status — v0.1 Data Foundations:** deployed and executed successfully on Azure; outputs independently audited on 26 November 2026. Agent-facing services are not implemented yet.
 
-## Execution evidence
+## Application — Closure Integrity Review (v0.2 MVP)
+
+CORTEX AION now includes a custom operations review application on top of the existing Azure data platform. It converts quality exceptions into agency-specific investigations, shows affected records and denominators, explains what must be reviewed, and exports an evidence report with source fingerprints.
+
+**Cloud-native boundary:** Data Factory, Spark and ADLS remain responsible for data preparation and storage. The application adds domain-specific logic and UX, not a second data platform. Reads are deliberately bounded to the current historical batch. Large-scale aggregation belongs in Azure.
+
+```mermaid
+flowchart LR
+    A["NYC 311 API"] --> B["ADF + Spark"]
+    B --> C["ADLS Silver & Quarantine"]
+    C -->|Entra ID / Azure SDK| D["FastAPI review service"]
+    D --> E["Operations workspace"]
+    D --> F["Evidence JSON"]
+```
+
+**Try the synthetic demo** (Python 3.11/3.12):
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-app.txt
+python -m pytest -q
+CORTEX_MODE=demo python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
+
+Open http://127.0.0.1:8000. For the real Azure connection, see the [application setup and acceptance checks](docs/v0.2-application.md).
+
+**Status:** v0.2 application code added; live authenticated Azure smoke test pending. Demo uses synthetic records, clearly labeled. No AI model, hosted deployment or customer adoption is claimed.
+
+
+## Execution evidence (v0.1)
 
 | Metric | Observed result |
 |---|---:|
@@ -79,15 +109,16 @@ This is a working academic cloud prototype, not a production data platform. Qual
 | Milestone | Scope | Status |
 |---|---|---|
 | v0.1 · Data Foundations | Ingestion, typed transformation, quality routing, reconciliation | Implemented and audited |
-| v0.2 · Data Platform | Incremental ingestion, idempotency, contracts, monitoring, deployment automation | Planned |
-| v0.3 · Trusted Context | Provenance-aware retrieval, access control, agent-facing interfaces | Planned |
+| v0.2 · Closure Integrity Review | Azure-backed review application, evidence export, tests | Code implemented; live acceptance pending |
+| v0.3 · Data Platform | Incremental ingestion, idempotency, contracts, monitoring, deployment automation | Planned |
+| v0.4 · Trusted Context | Provenance-aware retrieval, access control, agent-facing interfaces | Planned |
 | v1.0 · Agentic Data Infrastructure | Evaluated integration with real agent workflows | Exploratory |
 
 ## Academic context
 
 Developed for the UAX Master's in Big Data for Business. This milestone implements two Unit 2 practical exercises: **Copy Activity in a pipeline** and **Code-free data transformation at scale**. The individual academic PDF report is a separate deliverable.
 
-No raw records, access keys or personal account identifiers are intentionally added by this documentation update. Review existing Azure exports and repository history before public release.
+No raw records, access keys or personal account identifiers are intentionally added by this documentation update. The repository is currently public; review existing Azure exports and Git history for environment identifiers before further promotion.
 
 ---
 CORTEX AION · Data Foundations · November 2026
