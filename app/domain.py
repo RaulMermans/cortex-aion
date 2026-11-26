@@ -20,7 +20,7 @@ def investigate(silver, quarantine):
         not r["quality_reason"] or r["quality_reason"] == "VALID" for r in quarantine
     ):
         raise ValueError("Silver/quarantine routing is inconsistent")
-    counts = Counter(r["agency"] for r in rows)
+    counts = Counter(r["agency"] or "Unknown" for r in rows)
     groups = defaultdict(list)
     for r in quarantine:
         if r["quality_reason"] == RULE:
@@ -29,7 +29,7 @@ def investigate(silver, quarantine):
             groups[r["agency"] or "Unknown"].append(r)
     cases = []
     for agency, records in sorted(groups.items(), key=lambda item: (-len(item[1]), item[0])):
-        denominator = counts[agency] if agency != "Unknown" else sum(not r["agency"] for r in rows)
+        denominator = counts[agency]
         cases.append({
             "id": f"closure-{agency}",
             "agency": agency,
